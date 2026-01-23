@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package common;
+
+option go_package = "internal/proto;proto";
+
+// Used for pagination metadata in List responses.
+message PaginationMetadata {
+    int32 current_page = 1;
+    int32 total_pages = 2;
+    int32 page_size = 3;
+    int32 total_count = 4;
+}

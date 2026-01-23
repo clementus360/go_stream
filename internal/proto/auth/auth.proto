@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package auth;
+option go_package = "github.com/clementus360/go_auth/internal/proto/auth";
+
+service AuthService {
+    // End-User Actions
+    rpc Login (LoginRequest) returns (LoginResponse);
+    rpc Register (RegisterRequest) returns (RegisterResponse);
+    rpc RefreshToken (RefreshTokenRequest) returns (LoginResponse);
+
+// Elevated User Actions
+    rpc UpgradeToStreamer (UpgradeToStreamerRequest) returns (UpgradeToStreamerResponse);
+
+    // Internal Service Actions (mTLS restricted)
+    // Validates a JWT and returns user permissions
+    rpc ValidateToken (ValidateTokenRequest) returns (ValidateTokenResponse);
+    
+    // Specifically for Ingest: Checks if a stream key is valid for a user
+    rpc AuthorizeStream (AuthorizeStreamRequest) returns (AuthorizeStreamResponse);
+}
+
+message LoginRequest {
+    string username = 1;
+    string password = 2;
+}
+
+message LoginResponse {
+    string access_token = 1;
+    string refresh_token = 2; // Added for long-lived sessions
+    int64 expires_in = 3;     // Seconds until access_token expires
+}
+
+message RefreshTokenRequest {
+    string refresh_token = 1;
+}
+
+message RegisterRequest {
+    string username = 1;
+    string password = 2;
+    string email = 3;
+    repeated string roles = 4;
+}
+
+message RegisterResponse {
+    int64 user_id = 1; // Changed to int64 to match your User proto
+}
+
+message ValidateTokenRequest {
+    string token = 1;
+}
+
+message ValidateTokenResponse {
+    int64 user_id = 1;
+    repeated string roles = 2;
+    bool is_valid = 3;
+}
+
+message AuthorizeStreamRequest {
+    string stream_key = 2; // The secret key used in RTMP/OBS
+}
+
+message AuthorizeStreamResponse {
+    bool authorized = 1;
+    string channel_id = 2;
+}
+
+message UpgradeToStreamerRequest {
+    int64 user_id = 1;
+}
+
+message UpgradeToStreamerResponse {
+    bool success = 1;
+    string message = 2;
+}

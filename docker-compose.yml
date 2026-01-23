@@ -1,0 +1,22 @@
+services:
+  stream-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: stream_service
+    environment:
+      - REDIS_ADDR=${REDIS_ADDR}
+      - AUTH_SERVICE_ADDR=${AUTH_SERVICE_ADDR}
+      - DB_SERVICE_ADDR=${DB_SERVICE_ADDR}
+      - USER_SERVICE_ADDR=${USER_SERVICE_ADDR}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "8083:8080" # External HTTP Discovery
+      - "50051:50051" # External gRPC
+    volumes:
+      - ./certs:/app/certs:ro
+  redis:
+    image: redis/redis-stack-server:latest
+    ports:
+      - "6380:6379"

@@ -1,0 +1,131 @@
+syntax = "proto3";
+package stream;
+option go_package = "internal/proto;proto";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+import "common.proto";
+
+service StreamService {
+    // --- Channel Management (Persistent) ---
+    rpc CreateChannel (CreateChannelRequest) returns (ChannelResponse);
+    rpc GetChannel (GetChannelRequest) returns (ChannelResponse);
+    rpc UpdateChannel (UpdateChannelRequest) returns (ChannelResponse);
+    rpc DeleteChannel (DeleteChannelRequest) returns (google.protobuf.Empty);
+
+    rpc GetStreamKey (GetStreamKeyRequest) returns (GetStreamKeyResponse);
+    rpc ResetStreamKey (ResetStreamKeyRequest) returns (ChannelResponse);
+
+    // --- Session Management (Live/History) ---
+    rpc CreateSession (CreateSessionRequest) returns (SessionResponse);
+    rpc GetSession (GetSessionRequest) returns (SessionResponse);
+    rpc UpdateSession (UpdateSessionRequest) returns (SessionResponse); // Dynamic updates
+    rpc EndSession (EndSessionRequest) returns (google.protobuf.Empty);
+    rpc ListSessions (ListSessionsRequest) returns (ListSessionsResponse);
+    
+    // --- Specialized Ingest Operations ---
+    rpc UpdateProcessingStatus (UpdateProcessingStatusRequest) returns (google.protobuf.Empty);
+
+    rpc GetStaleSessions (GetStaleSessionsRequest) returns (GetStaleSessionsResponse);
+    rpc UpdateSessionHeartbeat (UpdateSessionHeartbeatRequest) returns (google.protobuf.Empty);
+    
+}
+
+enum StreamStatus {
+    OFFLINE = 0;
+    LIVE = 1;
+    COMPLETE = 2;
+    ERROR = 3;
+}
+
+message ChannelResponse {
+    int32 id = 1;
+    int64 user_id = 2;
+    string stream_key = 3;
+    string title = 4;
+    string description = 5;
+    bool is_live = 6;
+    google.protobuf.Timestamp created_at = 7;
+}
+
+message SessionResponse {
+    int64 id = 1;
+    int32 channel_id = 2;
+    StreamStatus status = 3;
+    string resolution = 4;
+    int32 bitrate = 5;
+    string codec = 6;
+    int32 view_count = 7;
+    google.protobuf.Timestamp start_time = 8;
+    google.protobuf.Timestamp end_time = 9;
+    google.protobuf.Timestamp last_heartbeat_at = 10; // NEW
+}
+
+message CreateChannelRequest { int64 user_id = 1; string stream_key = 2; }
+message GetChannelRequest { 
+    optional int32 id = 1; 
+    optional int64 user_id = 2; 
+    optional string stream_key = 3; // Add this to your existing proto
+}
+message UpdateChannelRequest { 
+    int32 id = 1; 
+    optional string title = 2; 
+    optional string description = 3; 
+    optional string stream_key = 4;
+}
+message DeleteChannelRequest { int32 id = 1; }
+
+message CreateSessionRequest { 
+    int32 channel_id = 1; 
+    string resolution = 2; 
+    int32 bitrate = 3; 
+    string codec = 4; 
+}
+message GetSessionRequest { int64 id = 1; }
+message UpdateSessionRequest {
+    int64 id = 1;
+    optional string resolution = 2;
+    optional int32 bitrate = 3;
+    optional int32 view_count = 4;
+}
+message EndSessionRequest { int64 id = 1; }
+message ListSessionsRequest {
+    int32 channel_id = 1;
+    int32 page_size = 2;
+    int32 page_number = 3;
+}
+message ListSessionsResponse {
+    repeated SessionResponse sessions = 1;
+    common.PaginationMetadata meta_data = 2;
+}
+message UpdateProcessingStatusRequest {
+    int64 session_id = 1;
+    optional StreamStatus status = 2;
+    optional int32 view_count_increment = 3;
+    optional int32 current_view_count = 4;
+}
+
+message GetStreamKeyRequest {
+    int64 user_id = 1;
+}
+
+message GetStreamKeyResponse {
+    string stream_key = 1;
+}
+
+message ResetStreamKeyRequest {
+    int64 user_id = 1;
+    string new_key = 2;
+}
+
+message GetStaleSessionsRequest {
+    int32 threshold_seconds = 1;
+}
+
+message GetStaleSessionsResponse {
+    repeated int64 session_ids = 1;
+}
+
+message UpdateSessionHeartbeatRequest {
+    int64 session_id = 1;
+}

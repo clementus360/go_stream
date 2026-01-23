@@ -1,0 +1,77 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "github.com/clementus360/go_database/internal/proto/user";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+service UserService { 
+    rpc CreateUser (CreateUserRequest) returns (User);
+    rpc GetUserByID (GetUserByIDRequest) returns (UserInternal);
+    rpc GetUserByUsername (GetUserByUsernameRequest) returns (UserInternal);
+    rpc UpdateUserPassword (UpdateUserPasswordRequest) returns (google.protobuf.Empty);
+    rpc UpdateUserStatus (UpdateUserStatusRequest) returns (google.protobuf.Empty);
+    rpc DeleteUser (DeleteUserRequest) returns (google.protobuf.Empty);
+    rpc AddUserRole (AddUserRoleRequest) returns (google.protobuf.Empty);
+    rpc RemoveUserRole (RemoveUserRoleRequest) returns (google.protobuf.Empty);
+    rpc VerifyUser (VerifyUserRequest) returns (google.protobuf.Empty);
+}
+
+enum UserStatus {
+    ACTIVE = 0;
+    SUSPENDED = 1;
+    BANNED = 2;
+}
+
+message User {
+    int64 user_id = 1;
+    string username = 2;
+    string email = 3;
+    repeated string roles = 4;
+    UserStatus status = 5;
+    google.protobuf.Timestamp created_at = 6;
+    bool is_verified = 7; // <--- Add this
+}
+
+message UserInternal {
+    User profile = 1;
+    string password_hash = 2;
+}
+
+message CreateUserRequest {
+    string username = 1;
+    string password_hash = 2;
+    string email = 3;
+    repeated string roles = 4;
+}
+
+message GetUserByUsernameRequest { string username = 1; }
+message GetUserByIDRequest { int64 user_id = 1; }
+
+message UpdateUserPasswordRequest {
+    int64 user_id = 1;
+    string new_password_hash = 2;
+}
+
+message UpdateUserStatusRequest {
+    int64 user_id = 1;
+    UserStatus status = 2;
+}
+
+message DeleteUserRequest { int64 user_id = 1; }
+
+message AddUserRoleRequest {
+    int64 user_id = 1;
+    string role = 2;
+}
+
+message RemoveUserRoleRequest {
+    int64 user_id = 1;
+    string role = 2;
+}
+
+message VerifyUserRequest {
+    int64 user_id = 1;
+}
