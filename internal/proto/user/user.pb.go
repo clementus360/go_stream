@@ -7,14 +7,13 @@
 package user
 
 import (
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
-
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -74,16 +73,17 @@ func (UserStatus) EnumDescriptor() ([]byte, []int) {
 }
 
 type User struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Username      string                 `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
-	Email         string                 `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
-	Roles         []string               `protobuf:"bytes,4,rep,name=roles,proto3" json:"roles,omitempty"`
-	Status        UserStatus             `protobuf:"varint,5,opt,name=status,proto3,enum=user.UserStatus" json:"status,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	IsVerified    bool                   `protobuf:"varint,7,opt,name=is_verified,json=isVerified,proto3" json:"is_verified,omitempty"` // <--- Add this
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	UserId          int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Username        string                 `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	Email           string                 `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
+	Roles           []string               `protobuf:"bytes,4,rep,name=roles,proto3" json:"roles,omitempty"`
+	Status          UserStatus             `protobuf:"varint,5,opt,name=status,proto3,enum=user.UserStatus" json:"status,omitempty"`
+	CreatedAt       *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	IsVerified      bool                   `protobuf:"varint,7,opt,name=is_verified,json=isVerified,proto3" json:"is_verified,omitempty"` // <--- Add this
+	ProfileImageUrl string                 `protobuf:"bytes,8,opt,name=profile_image_url,json=profileImageUrl,proto3" json:"profile_image_url,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *User) Reset() {
@@ -163,6 +163,13 @@ func (x *User) GetIsVerified() bool {
 		return x.IsVerified
 	}
 	return false
+}
+
+func (x *User) GetProfileImageUrl() string {
+	if x != nil {
+		return x.ProfileImageUrl
+	}
+	return ""
 }
 
 type UserInternal struct {
@@ -477,6 +484,58 @@ func (x *UpdateUserStatusRequest) GetStatus() UserStatus {
 	return UserStatus_ACTIVE
 }
 
+type UpdateUserProfilePictureRequest struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	UserId          int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ProfileImageUrl string                 `protobuf:"bytes,2,opt,name=profile_image_url,json=profileImageUrl,proto3" json:"profile_image_url,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *UpdateUserProfilePictureRequest) Reset() {
+	*x = UpdateUserProfilePictureRequest{}
+	mi := &file_internal_proto_user_user_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateUserProfilePictureRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateUserProfilePictureRequest) ProtoMessage() {}
+
+func (x *UpdateUserProfilePictureRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_proto_user_user_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateUserProfilePictureRequest.ProtoReflect.Descriptor instead.
+func (*UpdateUserProfilePictureRequest) Descriptor() ([]byte, []int) {
+	return file_internal_proto_user_user_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *UpdateUserProfilePictureRequest) GetUserId() int64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *UpdateUserProfilePictureRequest) GetProfileImageUrl() string {
+	if x != nil {
+		return x.ProfileImageUrl
+	}
+	return ""
+}
+
 type DeleteUserRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
@@ -486,7 +545,7 @@ type DeleteUserRequest struct {
 
 func (x *DeleteUserRequest) Reset() {
 	*x = DeleteUserRequest{}
-	mi := &file_internal_proto_user_user_proto_msgTypes[7]
+	mi := &file_internal_proto_user_user_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -498,7 +557,7 @@ func (x *DeleteUserRequest) String() string {
 func (*DeleteUserRequest) ProtoMessage() {}
 
 func (x *DeleteUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_user_user_proto_msgTypes[7]
+	mi := &file_internal_proto_user_user_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -511,7 +570,7 @@ func (x *DeleteUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteUserRequest.ProtoReflect.Descriptor instead.
 func (*DeleteUserRequest) Descriptor() ([]byte, []int) {
-	return file_internal_proto_user_user_proto_rawDescGZIP(), []int{7}
+	return file_internal_proto_user_user_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *DeleteUserRequest) GetUserId() int64 {
@@ -531,7 +590,7 @@ type AddUserRoleRequest struct {
 
 func (x *AddUserRoleRequest) Reset() {
 	*x = AddUserRoleRequest{}
-	mi := &file_internal_proto_user_user_proto_msgTypes[8]
+	mi := &file_internal_proto_user_user_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -543,7 +602,7 @@ func (x *AddUserRoleRequest) String() string {
 func (*AddUserRoleRequest) ProtoMessage() {}
 
 func (x *AddUserRoleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_user_user_proto_msgTypes[8]
+	mi := &file_internal_proto_user_user_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -556,7 +615,7 @@ func (x *AddUserRoleRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddUserRoleRequest.ProtoReflect.Descriptor instead.
 func (*AddUserRoleRequest) Descriptor() ([]byte, []int) {
-	return file_internal_proto_user_user_proto_rawDescGZIP(), []int{8}
+	return file_internal_proto_user_user_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *AddUserRoleRequest) GetUserId() int64 {
@@ -583,7 +642,7 @@ type RemoveUserRoleRequest struct {
 
 func (x *RemoveUserRoleRequest) Reset() {
 	*x = RemoveUserRoleRequest{}
-	mi := &file_internal_proto_user_user_proto_msgTypes[9]
+	mi := &file_internal_proto_user_user_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -595,7 +654,7 @@ func (x *RemoveUserRoleRequest) String() string {
 func (*RemoveUserRoleRequest) ProtoMessage() {}
 
 func (x *RemoveUserRoleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_user_user_proto_msgTypes[9]
+	mi := &file_internal_proto_user_user_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -608,7 +667,7 @@ func (x *RemoveUserRoleRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoveUserRoleRequest.ProtoReflect.Descriptor instead.
 func (*RemoveUserRoleRequest) Descriptor() ([]byte, []int) {
-	return file_internal_proto_user_user_proto_rawDescGZIP(), []int{9}
+	return file_internal_proto_user_user_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *RemoveUserRoleRequest) GetUserId() int64 {
@@ -634,7 +693,7 @@ type VerifyUserRequest struct {
 
 func (x *VerifyUserRequest) Reset() {
 	*x = VerifyUserRequest{}
-	mi := &file_internal_proto_user_user_proto_msgTypes[10]
+	mi := &file_internal_proto_user_user_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -646,7 +705,7 @@ func (x *VerifyUserRequest) String() string {
 func (*VerifyUserRequest) ProtoMessage() {}
 
 func (x *VerifyUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_user_user_proto_msgTypes[10]
+	mi := &file_internal_proto_user_user_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -659,7 +718,7 @@ func (x *VerifyUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VerifyUserRequest.ProtoReflect.Descriptor instead.
 func (*VerifyUserRequest) Descriptor() ([]byte, []int) {
-	return file_internal_proto_user_user_proto_rawDescGZIP(), []int{10}
+	return file_internal_proto_user_user_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *VerifyUserRequest) GetUserId() int64 {
@@ -673,7 +732,7 @@ var File_internal_proto_user_user_proto protoreflect.FileDescriptor
 
 const file_internal_proto_user_user_proto_rawDesc = "" +
 	"\n" +
-	"\x1einternal/proto/user/user.proto\x12\x04user\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xed\x01\n" +
+	"\x1einternal/proto/user/user.proto\x12\x04user\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x99\x02\n" +
 	"\x04User\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12\x1a\n" +
 	"\busername\x18\x02 \x01(\tR\busername\x12\x14\n" +
@@ -683,7 +742,8 @@ const file_internal_proto_user_user_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x1f\n" +
 	"\vis_verified\x18\a \x01(\bR\n" +
-	"isVerified\"Y\n" +
+	"isVerified\x12*\n" +
+	"\x11profile_image_url\x18\b \x01(\tR\x0fprofileImageUrl\"Y\n" +
 	"\fUserInternal\x12$\n" +
 	"\aprofile\x18\x01 \x01(\v2\n" +
 	".user.UserR\aprofile\x12#\n" +
@@ -702,7 +762,10 @@ const file_internal_proto_user_user_proto_rawDesc = "" +
 	"\x11new_password_hash\x18\x02 \x01(\tR\x0fnewPasswordHash\"\\\n" +
 	"\x17UpdateUserStatusRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12(\n" +
-	"\x06status\x18\x02 \x01(\x0e2\x10.user.UserStatusR\x06status\",\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x10.user.UserStatusR\x06status\"f\n" +
+	"\x1fUpdateUserProfilePictureRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12*\n" +
+	"\x11profile_image_url\x18\x02 \x01(\tR\x0fprofileImageUrl\",\n" +
 	"\x11DeleteUserRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x03R\x06userId\"A\n" +
 	"\x12AddUserRoleRequest\x12\x17\n" +
@@ -719,7 +782,7 @@ const file_internal_proto_user_user_proto_rawDesc = "" +
 	"\x06ACTIVE\x10\x00\x12\r\n" +
 	"\tSUSPENDED\x10\x01\x12\n" +
 	"\n" +
-	"\x06BANNED\x10\x022\xe6\x04\n" +
+	"\x06BANNED\x10\x022\xc1\x05\n" +
 	"\vUserService\x121\n" +
 	"\n" +
 	"CreateUser\x12\x17.user.CreateUserRequest\x1a\n" +
@@ -727,7 +790,8 @@ const file_internal_proto_user_user_proto_rawDesc = "" +
 	"\vGetUserByID\x12\x18.user.GetUserByIDRequest\x1a\x12.user.UserInternal\x12G\n" +
 	"\x11GetUserByUsername\x12\x1e.user.GetUserByUsernameRequest\x1a\x12.user.UserInternal\x12M\n" +
 	"\x12UpdateUserPassword\x12\x1f.user.UpdateUserPasswordRequest\x1a\x16.google.protobuf.Empty\x12I\n" +
-	"\x10UpdateUserStatus\x12\x1d.user.UpdateUserStatusRequest\x1a\x16.google.protobuf.Empty\x12=\n" +
+	"\x10UpdateUserStatus\x12\x1d.user.UpdateUserStatusRequest\x1a\x16.google.protobuf.Empty\x12Y\n" +
+	"\x18UpdateUserProfilePicture\x12%.user.UpdateUserProfilePictureRequest\x1a\x16.google.protobuf.Empty\x12=\n" +
 	"\n" +
 	"DeleteUser\x12\x17.user.DeleteUserRequest\x1a\x16.google.protobuf.Empty\x12?\n" +
 	"\vAddUserRole\x12\x18.user.AddUserRoleRequest\x1a\x16.google.protobuf.Empty\x12E\n" +
@@ -748,26 +812,27 @@ func file_internal_proto_user_user_proto_rawDescGZIP() []byte {
 }
 
 var file_internal_proto_user_user_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_internal_proto_user_user_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_internal_proto_user_user_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_internal_proto_user_user_proto_goTypes = []any{
-	(UserStatus)(0),                   // 0: user.UserStatus
-	(*User)(nil),                      // 1: user.User
-	(*UserInternal)(nil),              // 2: user.UserInternal
-	(*CreateUserRequest)(nil),         // 3: user.CreateUserRequest
-	(*GetUserByUsernameRequest)(nil),  // 4: user.GetUserByUsernameRequest
-	(*GetUserByIDRequest)(nil),        // 5: user.GetUserByIDRequest
-	(*UpdateUserPasswordRequest)(nil), // 6: user.UpdateUserPasswordRequest
-	(*UpdateUserStatusRequest)(nil),   // 7: user.UpdateUserStatusRequest
-	(*DeleteUserRequest)(nil),         // 8: user.DeleteUserRequest
-	(*AddUserRoleRequest)(nil),        // 9: user.AddUserRoleRequest
-	(*RemoveUserRoleRequest)(nil),     // 10: user.RemoveUserRoleRequest
-	(*VerifyUserRequest)(nil),         // 11: user.VerifyUserRequest
-	(*timestamppb.Timestamp)(nil),     // 12: google.protobuf.Timestamp
-	(*emptypb.Empty)(nil),             // 13: google.protobuf.Empty
+	(UserStatus)(0),                         // 0: user.UserStatus
+	(*User)(nil),                            // 1: user.User
+	(*UserInternal)(nil),                    // 2: user.UserInternal
+	(*CreateUserRequest)(nil),               // 3: user.CreateUserRequest
+	(*GetUserByUsernameRequest)(nil),        // 4: user.GetUserByUsernameRequest
+	(*GetUserByIDRequest)(nil),              // 5: user.GetUserByIDRequest
+	(*UpdateUserPasswordRequest)(nil),       // 6: user.UpdateUserPasswordRequest
+	(*UpdateUserStatusRequest)(nil),         // 7: user.UpdateUserStatusRequest
+	(*UpdateUserProfilePictureRequest)(nil), // 8: user.UpdateUserProfilePictureRequest
+	(*DeleteUserRequest)(nil),               // 9: user.DeleteUserRequest
+	(*AddUserRoleRequest)(nil),              // 10: user.AddUserRoleRequest
+	(*RemoveUserRoleRequest)(nil),           // 11: user.RemoveUserRoleRequest
+	(*VerifyUserRequest)(nil),               // 12: user.VerifyUserRequest
+	(*timestamppb.Timestamp)(nil),           // 13: google.protobuf.Timestamp
+	(*emptypb.Empty)(nil),                   // 14: google.protobuf.Empty
 }
 var file_internal_proto_user_user_proto_depIdxs = []int32{
 	0,  // 0: user.User.status:type_name -> user.UserStatus
-	12, // 1: user.User.created_at:type_name -> google.protobuf.Timestamp
+	13, // 1: user.User.created_at:type_name -> google.protobuf.Timestamp
 	1,  // 2: user.UserInternal.profile:type_name -> user.User
 	0,  // 3: user.UpdateUserStatusRequest.status:type_name -> user.UserStatus
 	3,  // 4: user.UserService.CreateUser:input_type -> user.CreateUserRequest
@@ -775,21 +840,23 @@ var file_internal_proto_user_user_proto_depIdxs = []int32{
 	4,  // 6: user.UserService.GetUserByUsername:input_type -> user.GetUserByUsernameRequest
 	6,  // 7: user.UserService.UpdateUserPassword:input_type -> user.UpdateUserPasswordRequest
 	7,  // 8: user.UserService.UpdateUserStatus:input_type -> user.UpdateUserStatusRequest
-	8,  // 9: user.UserService.DeleteUser:input_type -> user.DeleteUserRequest
-	9,  // 10: user.UserService.AddUserRole:input_type -> user.AddUserRoleRequest
-	10, // 11: user.UserService.RemoveUserRole:input_type -> user.RemoveUserRoleRequest
-	11, // 12: user.UserService.VerifyUser:input_type -> user.VerifyUserRequest
-	1,  // 13: user.UserService.CreateUser:output_type -> user.User
-	2,  // 14: user.UserService.GetUserByID:output_type -> user.UserInternal
-	2,  // 15: user.UserService.GetUserByUsername:output_type -> user.UserInternal
-	13, // 16: user.UserService.UpdateUserPassword:output_type -> google.protobuf.Empty
-	13, // 17: user.UserService.UpdateUserStatus:output_type -> google.protobuf.Empty
-	13, // 18: user.UserService.DeleteUser:output_type -> google.protobuf.Empty
-	13, // 19: user.UserService.AddUserRole:output_type -> google.protobuf.Empty
-	13, // 20: user.UserService.RemoveUserRole:output_type -> google.protobuf.Empty
-	13, // 21: user.UserService.VerifyUser:output_type -> google.protobuf.Empty
-	13, // [13:22] is the sub-list for method output_type
-	4,  // [4:13] is the sub-list for method input_type
+	8,  // 9: user.UserService.UpdateUserProfilePicture:input_type -> user.UpdateUserProfilePictureRequest
+	9,  // 10: user.UserService.DeleteUser:input_type -> user.DeleteUserRequest
+	10, // 11: user.UserService.AddUserRole:input_type -> user.AddUserRoleRequest
+	11, // 12: user.UserService.RemoveUserRole:input_type -> user.RemoveUserRoleRequest
+	12, // 13: user.UserService.VerifyUser:input_type -> user.VerifyUserRequest
+	1,  // 14: user.UserService.CreateUser:output_type -> user.User
+	2,  // 15: user.UserService.GetUserByID:output_type -> user.UserInternal
+	2,  // 16: user.UserService.GetUserByUsername:output_type -> user.UserInternal
+	14, // 17: user.UserService.UpdateUserPassword:output_type -> google.protobuf.Empty
+	14, // 18: user.UserService.UpdateUserStatus:output_type -> google.protobuf.Empty
+	14, // 19: user.UserService.UpdateUserProfilePicture:output_type -> google.protobuf.Empty
+	14, // 20: user.UserService.DeleteUser:output_type -> google.protobuf.Empty
+	14, // 21: user.UserService.AddUserRole:output_type -> google.protobuf.Empty
+	14, // 22: user.UserService.RemoveUserRole:output_type -> google.protobuf.Empty
+	14, // 23: user.UserService.VerifyUser:output_type -> google.protobuf.Empty
+	14, // [14:24] is the sub-list for method output_type
+	4,  // [4:14] is the sub-list for method input_type
 	4,  // [4:4] is the sub-list for extension type_name
 	4,  // [4:4] is the sub-list for extension extendee
 	0,  // [0:4] is the sub-list for field type_name
@@ -806,7 +873,7 @@ func file_internal_proto_user_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_internal_proto_user_user_proto_rawDesc), len(file_internal_proto_user_user_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   11,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

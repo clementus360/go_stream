@@ -13,6 +13,7 @@ service UserService {
     rpc GetUserByUsername (GetUserByUsernameRequest) returns (UserInternal);
     rpc UpdateUserPassword (UpdateUserPasswordRequest) returns (google.protobuf.Empty);
     rpc UpdateUserStatus (UpdateUserStatusRequest) returns (google.protobuf.Empty);
+    rpc UpdateUserProfilePicture (UpdateUserProfilePictureRequest) returns (google.protobuf.Empty);
     rpc DeleteUser (DeleteUserRequest) returns (google.protobuf.Empty);
     rpc AddUserRole (AddUserRoleRequest) returns (google.protobuf.Empty);
     rpc RemoveUserRole (RemoveUserRoleRequest) returns (google.protobuf.Empty);
@@ -33,6 +34,7 @@ message User {
     UserStatus status = 5;
     google.protobuf.Timestamp created_at = 6;
     bool is_verified = 7; // <--- Add this
+    string profile_image_url = 8;
 }
 
 message UserInternal {
@@ -58,6 +60,11 @@ message UpdateUserPasswordRequest {
 message UpdateUserStatusRequest {
     int64 user_id = 1;
     UserStatus status = 2;
+}
+
+message UpdateUserProfilePictureRequest {
+    int64 user_id = 1;
+    string profile_image_url = 2;
 }
 
 message DeleteUserRequest { int64 user_id = 1; }

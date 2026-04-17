@@ -8,7 +8,6 @@ package user
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -21,15 +20,16 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	UserService_CreateUser_FullMethodName         = "/user.UserService/CreateUser"
-	UserService_GetUserByID_FullMethodName        = "/user.UserService/GetUserByID"
-	UserService_GetUserByUsername_FullMethodName  = "/user.UserService/GetUserByUsername"
-	UserService_UpdateUserPassword_FullMethodName = "/user.UserService/UpdateUserPassword"
-	UserService_UpdateUserStatus_FullMethodName   = "/user.UserService/UpdateUserStatus"
-	UserService_DeleteUser_FullMethodName         = "/user.UserService/DeleteUser"
-	UserService_AddUserRole_FullMethodName        = "/user.UserService/AddUserRole"
-	UserService_RemoveUserRole_FullMethodName     = "/user.UserService/RemoveUserRole"
-	UserService_VerifyUser_FullMethodName         = "/user.UserService/VerifyUser"
+	UserService_CreateUser_FullMethodName               = "/user.UserService/CreateUser"
+	UserService_GetUserByID_FullMethodName              = "/user.UserService/GetUserByID"
+	UserService_GetUserByUsername_FullMethodName        = "/user.UserService/GetUserByUsername"
+	UserService_UpdateUserPassword_FullMethodName       = "/user.UserService/UpdateUserPassword"
+	UserService_UpdateUserStatus_FullMethodName         = "/user.UserService/UpdateUserStatus"
+	UserService_UpdateUserProfilePicture_FullMethodName = "/user.UserService/UpdateUserProfilePicture"
+	UserService_DeleteUser_FullMethodName               = "/user.UserService/DeleteUser"
+	UserService_AddUserRole_FullMethodName              = "/user.UserService/AddUserRole"
+	UserService_RemoveUserRole_FullMethodName           = "/user.UserService/RemoveUserRole"
+	UserService_VerifyUser_FullMethodName               = "/user.UserService/VerifyUser"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -41,6 +41,7 @@ type UserServiceClient interface {
 	GetUserByUsername(ctx context.Context, in *GetUserByUsernameRequest, opts ...grpc.CallOption) (*UserInternal, error)
 	UpdateUserPassword(ctx context.Context, in *UpdateUserPasswordRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	UpdateUserStatus(ctx context.Context, in *UpdateUserStatusRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UpdateUserProfilePicture(ctx context.Context, in *UpdateUserProfilePictureRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	AddUserRole(ctx context.Context, in *AddUserRoleRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	RemoveUserRole(ctx context.Context, in *RemoveUserRoleRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -105,6 +106,16 @@ func (c *userServiceClient) UpdateUserStatus(ctx context.Context, in *UpdateUser
 	return out, nil
 }
 
+func (c *userServiceClient) UpdateUserProfilePicture(ctx context.Context, in *UpdateUserProfilePictureRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, UserService_UpdateUserProfilePicture_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *userServiceClient) DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
@@ -154,6 +165,7 @@ type UserServiceServer interface {
 	GetUserByUsername(context.Context, *GetUserByUsernameRequest) (*UserInternal, error)
 	UpdateUserPassword(context.Context, *UpdateUserPasswordRequest) (*emptypb.Empty, error)
 	UpdateUserStatus(context.Context, *UpdateUserStatusRequest) (*emptypb.Empty, error)
+	UpdateUserProfilePicture(context.Context, *UpdateUserProfilePictureRequest) (*emptypb.Empty, error)
 	DeleteUser(context.Context, *DeleteUserRequest) (*emptypb.Empty, error)
 	AddUserRole(context.Context, *AddUserRoleRequest) (*emptypb.Empty, error)
 	RemoveUserRole(context.Context, *RemoveUserRoleRequest) (*emptypb.Empty, error)
@@ -182,6 +194,9 @@ func (UnimplementedUserServiceServer) UpdateUserPassword(context.Context, *Updat
 }
 func (UnimplementedUserServiceServer) UpdateUserStatus(context.Context, *UpdateUserStatusRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateUserStatus not implemented")
+}
+func (UnimplementedUserServiceServer) UpdateUserProfilePicture(context.Context, *UpdateUserProfilePictureRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateUserProfilePicture not implemented")
 }
 func (UnimplementedUserServiceServer) DeleteUser(context.Context, *DeleteUserRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteUser not implemented")
@@ -306,6 +321,24 @@ func _UserService_UpdateUserStatus_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_UpdateUserProfilePicture_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateUserProfilePictureRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).UpdateUserProfilePicture(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_UpdateUserProfilePicture_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).UpdateUserProfilePicture(ctx, req.(*UpdateUserProfilePictureRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _UserService_DeleteUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeleteUserRequest)
 	if err := dec(in); err != nil {
@@ -404,6 +437,10 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateUserStatus",
 			Handler:    _UserService_UpdateUserStatus_Handler,
+		},
+		{
+			MethodName: "UpdateUserProfilePicture",
+			Handler:    _UserService_UpdateUserProfilePicture_Handler,
 		},
 		{
 			MethodName: "DeleteUser",

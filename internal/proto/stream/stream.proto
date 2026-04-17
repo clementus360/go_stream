@@ -59,6 +59,7 @@ message SessionResponse {
     google.protobuf.Timestamp start_time = 8;
     google.protobuf.Timestamp end_time = 9;
     google.protobuf.Timestamp last_heartbeat_at = 10; // NEW
+    string category = 11;
 }
 
 message CreateChannelRequest { int64 user_id = 1; string stream_key = 2; }
@@ -80,6 +81,7 @@ message CreateSessionRequest {
     string resolution = 2; 
     int32 bitrate = 3; 
     string codec = 4; 
+    string category = 5;
 }
 message GetSessionRequest { int64 id = 1; }
 message UpdateSessionRequest {

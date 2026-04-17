@@ -2,12 +2,16 @@ package http
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	pb "github.com/clementus360/go_stream/internal/proto/stream_service"
 	"github.com/clementus360/go_stream/internal/service"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 )
 
 type StreamHTTPHandler struct {
@@ -38,6 +42,41 @@ func (h *StreamHTTPHandler) GetLiveStreams(w http.ResponseWriter, r *http.Reques
 		http.Error(w, "Failed to fetch streams", http.StatusInternalServerError)
 		return
 	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(resp)
+}
+
+func (h *StreamHTTPHandler) GetStream(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Extract identifier from URL, e.g., /v1/streams/alice
+	vars := strings.TrimPrefix(r.URL.Path, "/v1/streams/")
+	if vars == "" {
+		http.Error(w, "missing stream identifier", http.StatusBadRequest)
+		return
+	}
+
+	fmt.Printf("Fetching stream with identifier: %s\n", vars)
+
+	resp, err := h.Service.GetStream(r.Context(), &pb.GetStreamRequest{
+		Identifier: vars,
+	})
+
+	if err != nil {
+		st, _ := status.FromError(err)
+		if st.Code() == codes.NotFound {
+			http.Error(w, "Stream not found", http.StatusNotFound)
+		} else {
+			http.Error(w, "Internal error", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	fmt.Printf("Stream found: %s (ID: %d)\n", resp.Title, resp.SessionId)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(resp)

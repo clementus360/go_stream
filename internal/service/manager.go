@@ -30,12 +30,14 @@ type StreamManager struct {
 
 // LiveCache includes all fields supported by our DB schema and Proto
 type LiveCache struct {
-	ChannelID   int32  `json:"channel_id"`
-	SessionID   int64  `json:"session_id"`
-	Username    string `json:"username"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Resolution  string `json:"resolution"`
+	ChannelID       int32  `json:"channel_id"`
+	SessionID       int64  `json:"session_id"`
+	Username        string `json:"username"`
+	Title           string `json:"title"`
+	Description     string `json:"description"`
+	Resolution      string `json:"resolution"`
+	Category        string `json:"category"`
+	ProfileImageURL string `json:"profile_image_url"`
 }
 
 func NewStreamManager(db pb_db.StreamServiceClient, auth pb_auth.AuthServiceClient, user pb_user.UserServiceClient, rdb *redis.Client) *StreamManager {
@@ -48,7 +50,6 @@ func NewStreamManager(db pb_db.StreamServiceClient, auth pb_auth.AuthServiceClie
 }
 
 func (s *StreamManager) StartStream(ctx context.Context, req *pb.StartStreamRequest) (*pb.StartStreamResponse, error) {
-
 	// 1. Authorization
 	authResp, err := s.AuthClient.AuthorizeStream(ctx, &pb_auth.AuthorizeStreamRequest{
 		StreamKey: req.StreamKey,
@@ -60,13 +61,13 @@ func (s *StreamManager) StartStream(ctx context.Context, req *pb.StartStreamRequ
 	chanID, _ := strconv.ParseInt(authResp.ChannelId, 10, 32)
 	chanID32 := int32(chanID)
 
-	// 2. Create Session in DB
-	// Logic: This marks 'is_live = true'. If this succeeds but Redis fails, we have a problem.
+	// 2. Create Session in DB (Using category from req)
 	session, err := s.DBClient.CreateSession(ctx, &pb_db.CreateSessionRequest{
 		ChannelId:  chanID32,
 		Resolution: req.Resolution,
 		Bitrate:    req.Bitrate,
 		Codec:      req.Codec,
+		Category:   req.Category, // Strictly from your proto field 5
 	})
 	if err != nil {
 		if strings.Contains(err.Error(), "already live") {
@@ -76,31 +77,47 @@ func (s *StreamManager) StartStream(ctx context.Context, req *pb.StartStreamRequ
 	}
 
 	// 3. Get Metadata (User/Channel)
-	channel, _ := s.DBClient.GetChannel(ctx, &pb_db.GetChannelRequest{Id: &chanID32})
+	channel, err := s.DBClient.GetChannel(ctx, &pb_db.GetChannelRequest{Id: &chanID32})
+	if err != nil {
+		log.Printf("[StartStream] Failed to fetch channel %d: %v", chanID32, err)
+		return nil, status.Errorf(codes.Internal, "Failed to fetch channel metadata")
+	}
+
 	username := "Streamer"
-	if userResp, err := s.UserClient.GetUserByID(ctx, &pb_user.GetUserByIDRequest{UserId: channel.UserId}); err == nil {
+	profileImage := ""
+	log.Printf("[StartStream] Fetching user info for user_id: %d", channel.UserId)
+	userResp, userErr := s.UserClient.GetUserByID(ctx, &pb_user.GetUserByIDRequest{UserId: channel.UserId})
+	if userErr != nil {
+		log.Printf("[StartStream] Failed to fetch user %d: %v - using fallback username", channel.UserId, userErr)
+	} else {
 		username = userResp.Profile.Username
+		profileImage = userResp.Profile.ProfileImageUrl
+		log.Printf("[StartStream] Got username: %s", username)
 	}
 
 	// 4. Atomic Cache Write
 	cacheData, _ := json.Marshal(LiveCache{
-		ChannelID:   chanID32,
-		SessionID:   session.Id,
-		Username:    username,
-		Title:       channel.Title,
-		Description: channel.Description,
-		Resolution:  req.Resolution,
+		ChannelID:       chanID32,
+		SessionID:       session.Id,
+		Username:        username,
+		Title:           channel.Title,
+		Description:     channel.Description,
+		Category:        session.Category, // Field 11 from DB SessionResponse
+		Resolution:      req.Resolution,
+		ProfileImageURL: profileImage,
 	})
 
 	pipe := s.Redis.Pipeline()
-	pipe.Set(ctx, fmt.Sprintf("live:%d", chanID32), cacheData, 5*time.Minute) // 5m TTL for safety
+	pipe.Set(ctx, fmt.Sprintf("live:%d", chanID32), cacheData, 5*time.Minute)
 	pipe.Set(ctx, fmt.Sprintf("sid_to_chan:%d", session.Id), chanID32, 5*time.Minute)
+	pipe.Set(ctx, fmt.Sprintf("user_to_sid:%s", username), session.Id, 5*time.Minute)
+	log.Printf("[StartStream] Setting cache keys: live:%d, sid_to_chan:%d, user_to_sid:%s -> sessionId:%d", chanID32, session.Id, username, session.Id)
 
 	if _, err := pipe.Exec(ctx); err != nil {
-		// FAIL-SAFE: If Redis fails, tell DB to end the session immediately so the channel isn't stuck
 		s.DBClient.EndSession(ctx, &pb_db.EndSessionRequest{Id: session.Id})
 		return nil, status.Error(codes.Unavailable, "infrastructure sync failure (cache)")
 	}
+	log.Printf("[StartStream] Stream started successfully - Username: %s, SessionId: %d, ChannelId: %d", username, session.Id, chanID32)
 
 	return &pb.StartStreamResponse{SessionId: session.Id, ChannelId: chanID32}, nil
 }
@@ -178,11 +195,27 @@ func (s *StreamManager) UpdateStreamMetadata(ctx context.Context, req *pb.Update
 		return nil, status.Errorf(codes.Internal, "db update failed: %v", err)
 	}
 
-	// 3. CACHE EVICTION (The Failproof Sync)
-	// Instead of Get/Unmarshal/Set, we delete the key.
-	// The next Heartbeat will rehydrate the cache with the fresh DB data.
+	// 3. CACHE REHYDRATION (Ensure updated data is immediately available)
+	// Check if there's an active session for this channel by reading the existing cache
 	cacheKey := fmt.Sprintf("live:%d", targetChannelID)
-	s.Redis.Del(ctx, cacheKey)
+	var sessionID int64
+	if data, err := s.Redis.Get(ctx, cacheKey).Bytes(); err == nil {
+		// Cache exists, extract SessionID for rehydration
+		var cached LiveCache
+		if err := json.Unmarshal(data, &cached); err == nil {
+			sessionID = cached.SessionID
+		}
+	}
+
+	// Now rehydrate if we found an active session
+	if sessionID > 0 {
+		if sess, err := s.DBClient.GetSession(ctx, &pb_db.GetSessionRequest{Id: sessionID}); err == nil {
+			s.rehydrateCache(ctx, sess)
+		}
+	} else {
+		// No active session found, just delete stale cache
+		s.Redis.Del(ctx, cacheKey)
+	}
 
 	log.Printf("[METADATA] Updated channel %d (Mode: %s)", targetChannelID, map[bool]string{true: "User", false: "Internal"}[len(authValues) > 0])
 
@@ -218,13 +251,14 @@ func (s *StreamManager) GetLiveStreams(ctx context.Context, req *pb.GetLiveStrea
 			vc, _ := s.Redis.Get(ctx, fmt.Sprintf("viewers:%d", c.SessionID)).Int()
 
 			streams = append(streams, &pb.StreamInfo{
-				ChannelId:   c.ChannelID,
-				SessionId:   c.SessionID,
-				Username:    c.Username,
-				Title:       c.Title,
-				Description: c.Description,
-				ViewerCount: int32(vc),
-				Resolution:  c.Resolution,
+				ChannelId:       c.ChannelID,
+				SessionId:       c.SessionID,
+				Username:        c.Username,
+				Title:           c.Title,
+				Description:     c.Description,
+				ViewerCount:     int32(vc),
+				Resolution:      c.Resolution,
+				ProfileImageUrl: c.ProfileImageURL,
 			})
 		}
 
@@ -241,6 +275,106 @@ func (s *StreamManager) GetLiveStreams(ctx context.Context, req *pb.GetLiveStrea
 
 	log.Printf("[DISCOVERY] Returning %d live streams", len(streams))
 	return &pb.GetLiveStreamsResponse{Streams: streams}, nil
+}
+
+func (s *StreamManager) GetStream(ctx context.Context, req *pb.GetStreamRequest) (*pb.StreamInfo, error) {
+	var sessionID int64
+
+	// 1. Resolve Identifier (Is it a number or a username?)
+	if sid, err := strconv.ParseInt(req.Identifier, 10, 64); err == nil {
+		sessionID = sid
+		log.Printf("[GetStream] Resolved identifier %s as session ID: %d", req.Identifier, sessionID)
+	} else {
+		// It's a username, check our mapping key
+		log.Printf("[GetStream] Identifier %s is not numeric, looking up as username", req.Identifier)
+		val, err := s.Redis.Get(ctx, fmt.Sprintf("user_to_sid:%s", req.Identifier)).Result()
+		if err == redis.Nil {
+			log.Printf("[GetStream] Username %s not found in cache", req.Identifier)
+			return nil, status.Error(codes.NotFound, "Streamer is currently offline")
+		}
+		if err != nil {
+			log.Printf("[GetStream] Redis error looking up username %s: %v", req.Identifier, err)
+			return nil, status.Errorf(codes.Unavailable, "Cache unavailable: %v", err)
+		}
+		var parseErr error
+		sessionID, parseErr = strconv.ParseInt(val, 10, 64)
+		if parseErr != nil || sessionID == 0 {
+			log.Printf("[GetStream] Failed to parse session ID from Redis value %q for username %s: %v", val, req.Identifier, parseErr)
+			return nil, status.Error(codes.Internal, "Invalid session ID in cache")
+		}
+		log.Printf("[GetStream] Resolved username %s to session ID: %d", req.Identifier, sessionID)
+	}
+
+	// 2. Get Channel ID mapping
+	log.Printf("[GetStream] Looking up channel ID for session %d", sessionID)
+	chanID, err := s.Redis.Get(ctx, fmt.Sprintf("sid_to_chan:%d", sessionID)).Int()
+	if err != nil {
+		log.Printf("[GetStream] Cache miss for sid_to_chan:%d, attempting DB recovery: %v", sessionID, err)
+		// Self-Healing: If Redis lost mapping but session is still live in DB
+		dbSess, dbErr := s.DBClient.GetSession(ctx, &pb_db.GetSessionRequest{Id: sessionID})
+		if dbErr != nil {
+			log.Printf("[GetStream] Failed to fetch session %d from DB: %v", sessionID, dbErr)
+			return nil, status.Error(codes.NotFound, "Stream not found")
+		}
+		if dbSess == nil || dbSess.Status != pb_db.StreamStatus_LIVE {
+			log.Printf("[GetStream] Session %d is not live or not found in DB (status: %v)", sessionID, dbSess.Status)
+			return nil, status.Error(codes.NotFound, "Stream not found")
+		}
+		log.Printf("[GetStream] Recovered session %d from DB, rehydrating cache", sessionID)
+		s.rehydrateCache(ctx, dbSess)
+		chanID = int(dbSess.ChannelId)
+	}
+	log.Printf("[GetStream] Channel ID for session %d: %d", sessionID, chanID)
+
+	// 3. Get Metadata from Cache
+	log.Printf("[GetStream] Reading cache for channel %d", chanID)
+	data, err := s.Redis.Get(ctx, fmt.Sprintf("live:%d", chanID)).Bytes()
+	if err != nil {
+		// Cache miss - try to rehydrate from DB
+		log.Printf("[CACHE_MISS] Rehydrating cache for channel %d (session %d): %v", chanID, sessionID, err)
+		dbSess, dbErr := s.DBClient.GetSession(ctx, &pb_db.GetSessionRequest{Id: sessionID})
+		if dbErr != nil {
+			log.Printf("[GetStream] Failed to fetch session %d for rehydration: %v", sessionID, dbErr)
+			return nil, status.Error(codes.NotFound, "Stream not found")
+		}
+		if dbSess.Status != pb_db.StreamStatus_LIVE {
+			log.Printf("[GetStream] Session %d is not LIVE (status: %v)", sessionID, dbSess.Status)
+			return nil, status.Error(codes.NotFound, "Stream not found")
+		}
+		log.Printf("[GetStream] Rehydrating cache for session %d", sessionID)
+		s.rehydrateCache(ctx, dbSess)
+
+		// Retry cache read after rehydration
+		retryData, retryErr := s.Redis.Get(ctx, fmt.Sprintf("live:%d", chanID)).Bytes()
+		if retryErr != nil {
+			log.Printf("[GetStream] Cache rehydration failed, retry read error: %v", retryErr)
+			return nil, status.Error(codes.Internal, "Failed to rehydrate cache")
+		}
+		data = retryData
+		log.Printf("[GetStream] Cache rehydration successful, got %d bytes", len(data))
+	}
+
+	var c LiveCache
+	if err := json.Unmarshal(data, &c); err != nil {
+		log.Printf("[GetStream] Failed to unmarshal cache data: %v", err)
+		return nil, status.Error(codes.Internal, "Invalid cache data")
+	}
+	log.Printf("[GetStream] Successfully loaded stream: %s (ID: %d, Session: %d)", c.Title, c.ChannelID, c.SessionID)
+
+	// 4. Calculate real-time global viewers (from all nodes)
+	totalViewers := s.calculateGlobalViewers(ctx, sessionID)
+
+	return &pb.StreamInfo{
+		ChannelId:       c.ChannelID,
+		SessionId:       c.SessionID,
+		Username:        c.Username,
+		Title:           c.Title,
+		Description:     c.Description,
+		ViewerCount:     totalViewers,
+		Resolution:      c.Resolution,
+		Status:          pb.StreamStatus_LIVE,
+		ProfileImageUrl: c.ProfileImageURL,
+	}, nil
 }
 
 func (s *StreamManager) Heartbeat(ctx context.Context, req *pb.HeartbeatRequest) (*pb.HeartbeatResponse, error) {
@@ -349,23 +483,26 @@ func (s *StreamManager) rehydrateCache(ctx context.Context, sess *pb_db.SessionR
 		return
 	}
 
-	// 2. Fetch Username from User Service
+	// 2. Fetch Username and profile image from User Service
 	username := "Streamer" // Fallback default
+	profileImage := ""
 	userResp, err := s.UserClient.GetUserByID(ctx, &pb_user.GetUserByIDRequest{UserId: channel.UserId})
 	if err != nil {
 		log.Printf("[RECOVERY_WARN] Could not fetch user %d, using default: %v", channel.UserId, err)
 	} else {
 		username = userResp.Profile.Username
+		profileImage = userResp.Profile.ProfileImageUrl
 	}
 
 	// 3. Build Cache Object
 	cache := LiveCache{
-		ChannelID:   chanID,
-		SessionID:   sess.Id,
-		Username:    username,
-		Title:       channel.Title,
-		Description: channel.Description,
-		Resolution:  sess.Resolution,
+		ChannelID:       chanID,
+		SessionID:       sess.Id,
+		Username:        username,
+		Title:           channel.Title,
+		Description:     channel.Description,
+		Resolution:      sess.Resolution,
+		ProfileImageURL: profileImage,
 	}
 
 	// 4. Update Redis
@@ -390,17 +527,23 @@ func (s *StreamManager) rehydrateCache(ctx context.Context, sess *pb_db.SessionR
 func (s *StreamManager) StopStream(ctx context.Context, req *pb.StopStreamRequest) (*pb.StopStreamResponse, error) {
 	log.Printf("[StopStream] Request to end Session %d", req.SessionId)
 
-	// 1. Fetch session and CHECK STATUS
+	// 1. Fetch session to get Metadata (ChannelID and StartTime)
 	sess, err := s.DBClient.GetSession(ctx, &pb_db.GetSessionRequest{Id: req.SessionId})
 	if err != nil {
 		return nil, status.Errorf(codes.NotFound, "session not found")
 	}
 
-	// --- NEW: Status Guard ---
-	// Assuming your DB uses strings or enums. If status != LIVE, it's already over.
 	if sess.Status != pb_db.StreamStatus_LIVE {
-		log.Printf("[WARN] StopStream called on session %d with status %s", req.SessionId, sess.Status)
-		return nil, status.Errorf(codes.FailedPrecondition, "stream is already finished (Status: %s)", sess.Status)
+		return nil, status.Errorf(codes.FailedPrecondition, "stream already finished")
+	}
+
+	// --- NEW: Find Username for Cleanup ---
+	// We need the username to delete the user_to_sid lookup key
+	var username string
+	if data, err := s.Redis.Get(ctx, fmt.Sprintf("live:%d", sess.ChannelId)).Bytes(); err == nil {
+		var cached LiveCache
+		json.Unmarshal(data, &cached)
+		username = cached.Username
 	}
 
 	var durationSeconds uint32
@@ -408,17 +551,38 @@ func (s *StreamManager) StopStream(ctx context.Context, req *pb.StopStreamReques
 		durationSeconds = uint32(time.Since(sess.StartTime.AsTime()).Seconds())
 	}
 
-	// 2. Release DB Lock (Update status to COMPLETE and channels.is_live to false)
+	// 2. Persistent Update (DB)
 	_, err = s.DBClient.EndSession(ctx, &pb_db.EndSessionRequest{Id: req.SessionId})
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to close session")
+		return nil, status.Errorf(codes.Internal, "DB failure during session close")
 	}
 
-	// 3. Cache Cleanup
+	// 3. ATOMIC CACHE CLEANUP
 	pipe := s.Redis.Pipeline()
+
+	// Remove Discovery Keys
 	pipe.Del(ctx, fmt.Sprintf("sid_to_chan:%d", req.SessionId))
 	pipe.Del(ctx, fmt.Sprintf("live:%d", sess.ChannelId))
-	pipe.Exec(ctx)
+
+	// Remove Deep-Link Key
+	if username != "" {
+		pipe.Del(ctx, fmt.Sprintf("user_to_sid:%s", username))
+	}
+
+	// --- NEW: Viewer Tracking Cleanup ---
+	// Wipe the node set so calculateGlobalViewers returns 0 immediately
+	nodeSetKey := fmt.Sprintf("session_nodes:%d", req.SessionId)
+
+	// Get all nodes to delete their individual viewer counts too
+	nodes, _ := s.Redis.SMembers(ctx, nodeSetKey).Result()
+	for _, node := range nodes {
+		pipe.Del(ctx, fmt.Sprintf("node_viewers:%d:%s", req.SessionId, node))
+	}
+	pipe.Del(ctx, nodeSetKey)
+
+	if _, err := pipe.Exec(ctx); err != nil {
+		log.Printf("[ERROR] Redis cleanup failed for session %d: %v", req.SessionId, err)
+	}
 
 	return &pb.StopStreamResponse{
 		DurationSeconds: durationSeconds,

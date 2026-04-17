@@ -82,9 +82,25 @@ func main() {
 
 	// 5. Start HTTP Server (Port 8080)
 	httpHandler := streamHTTP.NewStreamHTTPHandler(mgr)
+	userHandler := streamHTTP.NewUserHTTPHandler(mgr)
 	mux := http.NewServeMux()
+
+	// --- Discovery Routes ---
 	mux.HandleFunc("GET /v1/streams/live", httpHandler.GetLiveStreams)
+
+	// Route for single stream lookup (ServeMux treats trailing slash as prefix)
+	// Handler extracts the identifier from the path suffix.
+	mux.HandleFunc("GET /v1/streams/", httpHandler.GetStream)
+
+	// --- Management Routes ---
+	// Register the metadata endpoint once; the handler checks the HTTP method.
 	mux.HandleFunc("POST /v1/streams/metadata", httpHandler.UpdateMetadata)
+	mux.HandleFunc("PUT /v1/streams/metadata", httpHandler.UpdateMetadata)
+
+	// --- User Routes ---
+	mux.HandleFunc("GET /v1/users", userHandler.GetUser)
+	mux.HandleFunc("PUT /v1/users/profile-picture", userHandler.UpdateProfilePicture)
+	mux.HandleFunc("POST /v1/users/profile-picture", userHandler.UpdateProfilePicture)
 
 	log.Println("🌐 HTTP Discovery API running on :8080")
 	if err := http.ListenAndServe(":8080", streamHTTP.CORSMiddleware(mux)); err != nil {

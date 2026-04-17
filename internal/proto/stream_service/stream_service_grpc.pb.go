@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.0
 // - protoc             v6.33.0
-// source: internal/proto/stream_service/stream_service.proto
+// source: stream_service.proto
 
 package pb
 
@@ -25,6 +25,7 @@ const (
 	StreamManager_UpdateSessionMetrics_FullMethodName = "/stream_service.StreamManager/UpdateSessionMetrics"
 	StreamManager_UpdateStreamMetadata_FullMethodName = "/stream_service.StreamManager/UpdateStreamMetadata"
 	StreamManager_GetLiveStreams_FullMethodName       = "/stream_service.StreamManager/GetLiveStreams"
+	StreamManager_GetStream_FullMethodName            = "/stream_service.StreamManager/GetStream"
 )
 
 // StreamManagerClient is the client API for StreamManager service.
@@ -40,6 +41,7 @@ type StreamManagerClient interface {
 	// --- User Actions ---
 	UpdateStreamMetadata(ctx context.Context, in *UpdateMetadataRequest, opts ...grpc.CallOption) (*UpdateMetadataResponse, error)
 	GetLiveStreams(ctx context.Context, in *GetLiveStreamsRequest, opts ...grpc.CallOption) (*GetLiveStreamsResponse, error)
+	GetStream(ctx context.Context, in *GetStreamRequest, opts ...grpc.CallOption) (*StreamInfo, error)
 }
 
 type streamManagerClient struct {
@@ -110,6 +112,16 @@ func (c *streamManagerClient) GetLiveStreams(ctx context.Context, in *GetLiveStr
 	return out, nil
 }
 
+func (c *streamManagerClient) GetStream(ctx context.Context, in *GetStreamRequest, opts ...grpc.CallOption) (*StreamInfo, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(StreamInfo)
+	err := c.cc.Invoke(ctx, StreamManager_GetStream_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // StreamManagerServer is the server API for StreamManager service.
 // All implementations must embed UnimplementedStreamManagerServer
 // for forward compatibility.
@@ -123,6 +135,7 @@ type StreamManagerServer interface {
 	// --- User Actions ---
 	UpdateStreamMetadata(context.Context, *UpdateMetadataRequest) (*UpdateMetadataResponse, error)
 	GetLiveStreams(context.Context, *GetLiveStreamsRequest) (*GetLiveStreamsResponse, error)
+	GetStream(context.Context, *GetStreamRequest) (*StreamInfo, error)
 	mustEmbedUnimplementedStreamManagerServer()
 }
 
@@ -150,6 +163,9 @@ func (UnimplementedStreamManagerServer) UpdateStreamMetadata(context.Context, *U
 }
 func (UnimplementedStreamManagerServer) GetLiveStreams(context.Context, *GetLiveStreamsRequest) (*GetLiveStreamsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetLiveStreams not implemented")
+}
+func (UnimplementedStreamManagerServer) GetStream(context.Context, *GetStreamRequest) (*StreamInfo, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetStream not implemented")
 }
 func (UnimplementedStreamManagerServer) mustEmbedUnimplementedStreamManagerServer() {}
 func (UnimplementedStreamManagerServer) testEmbeddedByValue()                       {}
@@ -280,6 +296,24 @@ func _StreamManager_GetLiveStreams_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _StreamManager_GetStream_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetStreamRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StreamManagerServer).GetStream(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: StreamManager_GetStream_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StreamManagerServer).GetStream(ctx, req.(*GetStreamRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // StreamManager_ServiceDesc is the grpc.ServiceDesc for StreamManager service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -311,7 +345,11 @@ var StreamManager_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "GetLiveStreams",
 			Handler:    _StreamManager_GetLiveStreams_Handler,
 		},
+		{
+			MethodName: "GetStream",
+			Handler:    _StreamManager_GetStream_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "internal/proto/stream_service/stream_service.proto",
+	Metadata: "stream_service.proto",
 }

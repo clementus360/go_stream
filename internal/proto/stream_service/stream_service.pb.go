@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        v6.33.0
-// source: internal/proto/stream_service/stream_service.proto
+// source: stream_service.proto
 
 package pb
 
@@ -57,11 +57,11 @@ func (x StreamStatus) String() string {
 }
 
 func (StreamStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_internal_proto_stream_service_stream_service_proto_enumTypes[0].Descriptor()
+	return file_stream_service_proto_enumTypes[0].Descriptor()
 }
 
 func (StreamStatus) Type() protoreflect.EnumType {
-	return &file_internal_proto_stream_service_stream_service_proto_enumTypes[0]
+	return &file_stream_service_proto_enumTypes[0]
 }
 
 func (x StreamStatus) Number() protoreflect.EnumNumber {
@@ -70,7 +70,7 @@ func (x StreamStatus) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use StreamStatus.Descriptor instead.
 func (StreamStatus) EnumDescriptor() ([]byte, []int) {
-	return file_internal_proto_stream_service_stream_service_proto_rawDescGZIP(), []int{0}
+	return file_stream_service_proto_rawDescGZIP(), []int{0}
 }
 
 type StartStreamRequest struct {
@@ -79,13 +79,14 @@ type StartStreamRequest struct {
 	Resolution    string                 `protobuf:"bytes,2,opt,name=resolution,proto3" json:"resolution,omitempty"`
 	Bitrate       int32                  `protobuf:"varint,3,opt,name=bitrate,proto3" json:"bitrate,omitempty"`
 	Codec         string                 `protobuf:"bytes,4,opt,name=codec,proto3" json:"codec,omitempty"`
+	Category      string                 `protobuf:"bytes,5,opt,name=category,proto3" json:"category,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *StartStreamRequest) Reset() {
 	*x = StartStreamRequest{}
-	mi := &file_internal_proto_stream_service_stream_service_proto_msgTypes[0]
+	mi := &file_stream_service_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -97,7 +98,7 @@ func (x *StartStreamRequest) String() string {
 func (*StartStreamRequest) ProtoMessage() {}
 
 func (x *StartStreamRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_stream_service_stream_service_proto_msgTypes[0]
+	mi := &file_stream_service_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -110,7 +111,7 @@ func (x *StartStreamRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartStreamRequest.ProtoReflect.Descriptor instead.
 func (*StartStreamRequest) Descriptor() ([]byte, []int) {
-	return file_internal_proto_stream_service_stream_service_proto_rawDescGZIP(), []int{0}
+	return file_stream_service_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *StartStreamRequest) GetStreamKey() string {
@@ -141,6 +142,13 @@ func (x *StartStreamRequest) GetCodec() string {
 	return ""
 }
 
+func (x *StartStreamRequest) GetCategory() string {
+	if x != nil {
+		return x.Category
+	}
+	return ""
+}
+
 type StartStreamResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	SessionId     int64                  `protobuf:"varint,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
@@ -151,7 +159,7 @@ type StartStreamResponse struct {
 
 func (x *StartStreamResponse) Reset() {
 	*x = StartStreamResponse{}
-	mi := &file_internal_proto_stream_service_stream_service_proto_msgTypes[1]
+	mi := &file_stream_service_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -163,7 +171,7 @@ func (x *StartStreamResponse) String() string {
 func (*StartStreamResponse) ProtoMessage() {}
 
 func (x *StartStreamResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_stream_service_stream_service_proto_msgTypes[1]
+	mi := &file_stream_service_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -176,7 +184,7 @@ func (x *StartStreamResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartStreamResponse.ProtoReflect.Descriptor instead.
 func (*StartStreamResponse) Descriptor() ([]byte, []int) {
-	return file_internal_proto_stream_service_stream_service_proto_rawDescGZIP(), []int{1}
+	return file_stream_service_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *StartStreamResponse) GetSessionId() int64 {
@@ -203,7 +211,7 @@ type HeartbeatRequest struct {
 
 func (x *HeartbeatRequest) Reset() {
 	*x = HeartbeatRequest{}
-	mi := &file_internal_proto_stream_service_stream_service_proto_msgTypes[2]
+	mi := &file_stream_service_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -215,7 +223,7 @@ func (x *HeartbeatRequest) String() string {
 func (*HeartbeatRequest) ProtoMessage() {}
 
 func (x *HeartbeatRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_stream_service_stream_service_proto_msgTypes[2]
+	mi := &file_stream_service_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -228,7 +236,7 @@ func (x *HeartbeatRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HeartbeatRequest.ProtoReflect.Descriptor instead.
 func (*HeartbeatRequest) Descriptor() ([]byte, []int) {
-	return file_internal_proto_stream_service_stream_service_proto_rawDescGZIP(), []int{2}
+	return file_stream_service_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *HeartbeatRequest) GetSessionId() int64 {
@@ -254,7 +262,7 @@ type HeartbeatResponse struct {
 
 func (x *HeartbeatResponse) Reset() {
 	*x = HeartbeatResponse{}
-	mi := &file_internal_proto_stream_service_stream_service_proto_msgTypes[3]
+	mi := &file_stream_service_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -266,7 +274,7 @@ func (x *HeartbeatResponse) String() string {
 func (*HeartbeatResponse) ProtoMessage() {}
 
 func (x *HeartbeatResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_stream_service_stream_service_proto_msgTypes[3]
+	mi := &file_stream_service_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -279,7 +287,7 @@ func (x *HeartbeatResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HeartbeatResponse.ProtoReflect.Descriptor instead.
 func (*HeartbeatResponse) Descriptor() ([]byte, []int) {
-	return file_internal_proto_stream_service_stream_service_proto_rawDescGZIP(), []int{3}
+	return file_stream_service_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *HeartbeatResponse) GetShouldContinue() bool {
@@ -300,7 +308,7 @@ type UpdateSessionMetricsRequest struct {
 
 func (x *UpdateSessionMetricsRequest) Reset() {
 	*x = UpdateSessionMetricsRequest{}
-	mi := &file_internal_proto_stream_service_stream_service_proto_msgTypes[4]
+	mi := &file_stream_service_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -312,7 +320,7 @@ func (x *UpdateSessionMetricsRequest) String() string {
 func (*UpdateSessionMetricsRequest) ProtoMessage() {}
 
 func (x *UpdateSessionMetricsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_stream_service_stream_service_proto_msgTypes[4]
+	mi := &file_stream_service_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -325,7 +333,7 @@ func (x *UpdateSessionMetricsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateSessionMetricsRequest.ProtoReflect.Descriptor instead.
 func (*UpdateSessionMetricsRequest) Descriptor() ([]byte, []int) {
-	return file_internal_proto_stream_service_stream_service_proto_rawDescGZIP(), []int{4}
+	return file_stream_service_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *UpdateSessionMetricsRequest) GetSessionId() int64 {
@@ -358,7 +366,7 @@ type UpdateSessionMetricsResponse struct {
 
 func (x *UpdateSessionMetricsResponse) Reset() {
 	*x = UpdateSessionMetricsResponse{}
-	mi := &file_internal_proto_stream_service_stream_service_proto_msgTypes[5]
+	mi := &file_stream_service_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -370,7 +378,7 @@ func (x *UpdateSessionMetricsResponse) String() string {
 func (*UpdateSessionMetricsResponse) ProtoMessage() {}
 
 func (x *UpdateSessionMetricsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_stream_service_stream_service_proto_msgTypes[5]
+	mi := &file_stream_service_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -383,7 +391,7 @@ func (x *UpdateSessionMetricsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateSessionMetricsResponse.ProtoReflect.Descriptor instead.
 func (*UpdateSessionMetricsResponse) Descriptor() ([]byte, []int) {
-	return file_internal_proto_stream_service_stream_service_proto_rawDescGZIP(), []int{5}
+	return file_stream_service_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *UpdateSessionMetricsResponse) GetSuccess() bool {
@@ -402,7 +410,7 @@ type StopStreamRequest struct {
 
 func (x *StopStreamRequest) Reset() {
 	*x = StopStreamRequest{}
-	mi := &file_internal_proto_stream_service_stream_service_proto_msgTypes[6]
+	mi := &file_stream_service_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -414,7 +422,7 @@ func (x *StopStreamRequest) String() string {
 func (*StopStreamRequest) ProtoMessage() {}
 
 func (x *StopStreamRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_stream_service_stream_service_proto_msgTypes[6]
+	mi := &file_stream_service_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -427,7 +435,7 @@ func (x *StopStreamRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StopStreamRequest.ProtoReflect.Descriptor instead.
 func (*StopStreamRequest) Descriptor() ([]byte, []int) {
-	return file_internal_proto_stream_service_stream_service_proto_rawDescGZIP(), []int{6}
+	return file_stream_service_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *StopStreamRequest) GetSessionId() int64 {
@@ -446,7 +454,7 @@ type StopStreamResponse struct {
 
 func (x *StopStreamResponse) Reset() {
 	*x = StopStreamResponse{}
-	mi := &file_internal_proto_stream_service_stream_service_proto_msgTypes[7]
+	mi := &file_stream_service_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -458,7 +466,7 @@ func (x *StopStreamResponse) String() string {
 func (*StopStreamResponse) ProtoMessage() {}
 
 func (x *StopStreamResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_stream_service_stream_service_proto_msgTypes[7]
+	mi := &file_stream_service_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -471,7 +479,7 @@ func (x *StopStreamResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StopStreamResponse.ProtoReflect.Descriptor instead.
 func (*StopStreamResponse) Descriptor() ([]byte, []int) {
-	return file_internal_proto_stream_service_stream_service_proto_rawDescGZIP(), []int{7}
+	return file_stream_service_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *StopStreamResponse) GetDurationSeconds() uint32 {
@@ -492,7 +500,7 @@ type UpdateMetadataRequest struct {
 
 func (x *UpdateMetadataRequest) Reset() {
 	*x = UpdateMetadataRequest{}
-	mi := &file_internal_proto_stream_service_stream_service_proto_msgTypes[8]
+	mi := &file_stream_service_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -504,7 +512,7 @@ func (x *UpdateMetadataRequest) String() string {
 func (*UpdateMetadataRequest) ProtoMessage() {}
 
 func (x *UpdateMetadataRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_stream_service_stream_service_proto_msgTypes[8]
+	mi := &file_stream_service_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -517,7 +525,7 @@ func (x *UpdateMetadataRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateMetadataRequest.ProtoReflect.Descriptor instead.
 func (*UpdateMetadataRequest) Descriptor() ([]byte, []int) {
-	return file_internal_proto_stream_service_stream_service_proto_rawDescGZIP(), []int{8}
+	return file_stream_service_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *UpdateMetadataRequest) GetChannelId() int32 {
@@ -550,7 +558,7 @@ type UpdateMetadataResponse struct {
 
 func (x *UpdateMetadataResponse) Reset() {
 	*x = UpdateMetadataResponse{}
-	mi := &file_internal_proto_stream_service_stream_service_proto_msgTypes[9]
+	mi := &file_stream_service_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -562,7 +570,7 @@ func (x *UpdateMetadataResponse) String() string {
 func (*UpdateMetadataResponse) ProtoMessage() {}
 
 func (x *UpdateMetadataResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_stream_service_stream_service_proto_msgTypes[9]
+	mi := &file_stream_service_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -575,7 +583,7 @@ func (x *UpdateMetadataResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateMetadataResponse.ProtoReflect.Descriptor instead.
 func (*UpdateMetadataResponse) Descriptor() ([]byte, []int) {
-	return file_internal_proto_stream_service_stream_service_proto_rawDescGZIP(), []int{9}
+	return file_stream_service_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *UpdateMetadataResponse) GetSuccess() bool {
@@ -594,7 +602,7 @@ type GetLiveStreamsRequest struct {
 
 func (x *GetLiveStreamsRequest) Reset() {
 	*x = GetLiveStreamsRequest{}
-	mi := &file_internal_proto_stream_service_stream_service_proto_msgTypes[10]
+	mi := &file_stream_service_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -606,7 +614,7 @@ func (x *GetLiveStreamsRequest) String() string {
 func (*GetLiveStreamsRequest) ProtoMessage() {}
 
 func (x *GetLiveStreamsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_stream_service_stream_service_proto_msgTypes[10]
+	mi := &file_stream_service_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -619,7 +627,7 @@ func (x *GetLiveStreamsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetLiveStreamsRequest.ProtoReflect.Descriptor instead.
 func (*GetLiveStreamsRequest) Descriptor() ([]byte, []int) {
-	return file_internal_proto_stream_service_stream_service_proto_rawDescGZIP(), []int{10}
+	return file_stream_service_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *GetLiveStreamsRequest) GetLimit() int32 {
@@ -638,7 +646,7 @@ type GetLiveStreamsResponse struct {
 
 func (x *GetLiveStreamsResponse) Reset() {
 	*x = GetLiveStreamsResponse{}
-	mi := &file_internal_proto_stream_service_stream_service_proto_msgTypes[11]
+	mi := &file_stream_service_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -650,7 +658,7 @@ func (x *GetLiveStreamsResponse) String() string {
 func (*GetLiveStreamsResponse) ProtoMessage() {}
 
 func (x *GetLiveStreamsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_stream_service_stream_service_proto_msgTypes[11]
+	mi := &file_stream_service_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -663,7 +671,7 @@ func (x *GetLiveStreamsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetLiveStreamsResponse.ProtoReflect.Descriptor instead.
 func (*GetLiveStreamsResponse) Descriptor() ([]byte, []int) {
-	return file_internal_proto_stream_service_stream_service_proto_rawDescGZIP(), []int{11}
+	return file_stream_service_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *GetLiveStreamsResponse) GetStreams() []*StreamInfo {
@@ -673,23 +681,69 @@ func (x *GetLiveStreamsResponse) GetStreams() []*StreamInfo {
 	return nil
 }
 
-type StreamInfo struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ChannelId     int32                  `protobuf:"varint,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	SessionId     int64                  `protobuf:"varint,2,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
-	Username      string                 `protobuf:"bytes,3,opt,name=username,proto3" json:"username,omitempty"`
-	Title         string                 `protobuf:"bytes,4,opt,name=title,proto3" json:"title,omitempty"`
-	Description   string                 `protobuf:"bytes,5,opt,name=description,proto3" json:"description,omitempty"`
-	ViewerCount   int32                  `protobuf:"varint,6,opt,name=viewer_count,json=viewerCount,proto3" json:"viewer_count,omitempty"`
-	Resolution    string                 `protobuf:"bytes,7,opt,name=resolution,proto3" json:"resolution,omitempty"`
-	Status        StreamStatus           `protobuf:"varint,8,opt,name=status,proto3,enum=stream_service.StreamStatus" json:"status,omitempty"` // Good to include for frontend logic
+type GetStreamRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Can be a numeric string ("123") or a username ("alice")
+	Identifier    string `protobuf:"bytes,1,opt,name=identifier,proto3" json:"identifier,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
+func (x *GetStreamRequest) Reset() {
+	*x = GetStreamRequest{}
+	mi := &file_stream_service_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetStreamRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetStreamRequest) ProtoMessage() {}
+
+func (x *GetStreamRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_stream_service_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetStreamRequest.ProtoReflect.Descriptor instead.
+func (*GetStreamRequest) Descriptor() ([]byte, []int) {
+	return file_stream_service_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *GetStreamRequest) GetIdentifier() string {
+	if x != nil {
+		return x.Identifier
+	}
+	return ""
+}
+
+type StreamInfo struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	ChannelId       int32                  `protobuf:"varint,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	SessionId       int64                  `protobuf:"varint,2,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
+	Username        string                 `protobuf:"bytes,3,opt,name=username,proto3" json:"username,omitempty"`
+	Title           string                 `protobuf:"bytes,4,opt,name=title,proto3" json:"title,omitempty"`
+	Description     string                 `protobuf:"bytes,5,opt,name=description,proto3" json:"description,omitempty"`
+	ViewerCount     int32                  `protobuf:"varint,6,opt,name=viewer_count,json=viewerCount,proto3" json:"viewer_count,omitempty"`
+	Resolution      string                 `protobuf:"bytes,7,opt,name=resolution,proto3" json:"resolution,omitempty"`
+	Status          StreamStatus           `protobuf:"varint,8,opt,name=status,proto3,enum=stream_service.StreamStatus" json:"status,omitempty"` // Good to include for frontend logic
+	ProfileImageUrl string                 `protobuf:"bytes,9,opt,name=profile_image_url,json=profileImageUrl,proto3" json:"profile_image_url,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
 func (x *StreamInfo) Reset() {
 	*x = StreamInfo{}
-	mi := &file_internal_proto_stream_service_stream_service_proto_msgTypes[12]
+	mi := &file_stream_service_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -701,7 +755,7 @@ func (x *StreamInfo) String() string {
 func (*StreamInfo) ProtoMessage() {}
 
 func (x *StreamInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_stream_service_stream_service_proto_msgTypes[12]
+	mi := &file_stream_service_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -714,7 +768,7 @@ func (x *StreamInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StreamInfo.ProtoReflect.Descriptor instead.
 func (*StreamInfo) Descriptor() ([]byte, []int) {
-	return file_internal_proto_stream_service_stream_service_proto_rawDescGZIP(), []int{12}
+	return file_stream_service_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *StreamInfo) GetChannelId() int32 {
@@ -773,11 +827,18 @@ func (x *StreamInfo) GetStatus() StreamStatus {
 	return StreamStatus_OFFLINE
 }
 
-var File_internal_proto_stream_service_stream_service_proto protoreflect.FileDescriptor
+func (x *StreamInfo) GetProfileImageUrl() string {
+	if x != nil {
+		return x.ProfileImageUrl
+	}
+	return ""
+}
 
-const file_internal_proto_stream_service_stream_service_proto_rawDesc = "" +
+var File_stream_service_proto protoreflect.FileDescriptor
+
+const file_stream_service_proto_rawDesc = "" +
 	"\n" +
-	"2internal/proto/stream_service/stream_service.proto\x12\x0estream_service\"\x83\x01\n" +
+	"\x14stream_service.proto\x12\x0estream_service\"\x9f\x01\n" +
 	"\x12StartStreamRequest\x12\x1d\n" +
 	"\n" +
 	"stream_key\x18\x01 \x01(\tR\tstreamKey\x12\x1e\n" +
@@ -785,7 +846,8 @@ const file_internal_proto_stream_service_stream_service_proto_rawDesc = "" +
 	"resolution\x18\x02 \x01(\tR\n" +
 	"resolution\x12\x18\n" +
 	"\abitrate\x18\x03 \x01(\x05R\abitrate\x12\x14\n" +
-	"\x05codec\x18\x04 \x01(\tR\x05codec\"S\n" +
+	"\x05codec\x18\x04 \x01(\tR\x05codec\x12\x1a\n" +
+	"\bcategory\x18\x05 \x01(\tR\bcategory\"S\n" +
 	"\x13StartStreamResponse\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\x03R\tsessionId\x12\x1d\n" +
@@ -821,7 +883,11 @@ const file_internal_proto_stream_service_stream_service_proto_rawDesc = "" +
 	"\x15GetLiveStreamsRequest\x12\x14\n" +
 	"\x05limit\x18\x01 \x01(\x05R\x05limit\"N\n" +
 	"\x16GetLiveStreamsResponse\x124\n" +
-	"\astreams\x18\x01 \x03(\v2\x1a.stream_service.StreamInfoR\astreams\"\x97\x02\n" +
+	"\astreams\x18\x01 \x03(\v2\x1a.stream_service.StreamInfoR\astreams\"2\n" +
+	"\x10GetStreamRequest\x12\x1e\n" +
+	"\n" +
+	"identifier\x18\x01 \x01(\tR\n" +
+	"identifier\"\xc3\x02\n" +
 	"\n" +
 	"StreamInfo\x12\x1d\n" +
 	"\n" +
@@ -835,12 +901,13 @@ const file_internal_proto_stream_service_stream_service_proto_rawDesc = "" +
 	"\n" +
 	"resolution\x18\a \x01(\tR\n" +
 	"resolution\x124\n" +
-	"\x06status\x18\b \x01(\x0e2\x1c.stream_service.StreamStatusR\x06status*>\n" +
+	"\x06status\x18\b \x01(\x0e2\x1c.stream_service.StreamStatusR\x06status\x12*\n" +
+	"\x11profile_image_url\x18\t \x01(\tR\x0fprofileImageUrl*>\n" +
 	"\fStreamStatus\x12\v\n" +
 	"\aOFFLINE\x10\x00\x12\b\n" +
 	"\x04LIVE\x10\x01\x12\f\n" +
 	"\bCOMPLETE\x10\x02\x12\t\n" +
-	"\x05ERROR\x10\x032\xc9\x04\n" +
+	"\x05ERROR\x10\x032\x94\x05\n" +
 	"\rStreamManager\x12V\n" +
 	"\vStartStream\x12\".stream_service.StartStreamRequest\x1a#.stream_service.StartStreamResponse\x12P\n" +
 	"\tHeartbeat\x12 .stream_service.HeartbeatRequest\x1a!.stream_service.HeartbeatResponse\x12S\n" +
@@ -848,23 +915,24 @@ const file_internal_proto_stream_service_stream_service_proto_rawDesc = "" +
 	"StopStream\x12!.stream_service.StopStreamRequest\x1a\".stream_service.StopStreamResponse\x12q\n" +
 	"\x14UpdateSessionMetrics\x12+.stream_service.UpdateSessionMetricsRequest\x1a,.stream_service.UpdateSessionMetricsResponse\x12e\n" +
 	"\x14UpdateStreamMetadata\x12%.stream_service.UpdateMetadataRequest\x1a&.stream_service.UpdateMetadataResponse\x12_\n" +
-	"\x0eGetLiveStreams\x12%.stream_service.GetLiveStreamsRequest\x1a&.stream_service.GetLiveStreamsResponseB\x06Z\x04./pbb\x06proto3"
+	"\x0eGetLiveStreams\x12%.stream_service.GetLiveStreamsRequest\x1a&.stream_service.GetLiveStreamsResponse\x12I\n" +
+	"\tGetStream\x12 .stream_service.GetStreamRequest\x1a\x1a.stream_service.StreamInfoB\x06Z\x04./pbb\x06proto3"
 
 var (
-	file_internal_proto_stream_service_stream_service_proto_rawDescOnce sync.Once
-	file_internal_proto_stream_service_stream_service_proto_rawDescData []byte
+	file_stream_service_proto_rawDescOnce sync.Once
+	file_stream_service_proto_rawDescData []byte
 )
 
-func file_internal_proto_stream_service_stream_service_proto_rawDescGZIP() []byte {
-	file_internal_proto_stream_service_stream_service_proto_rawDescOnce.Do(func() {
-		file_internal_proto_stream_service_stream_service_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_internal_proto_stream_service_stream_service_proto_rawDesc), len(file_internal_proto_stream_service_stream_service_proto_rawDesc)))
+func file_stream_service_proto_rawDescGZIP() []byte {
+	file_stream_service_proto_rawDescOnce.Do(func() {
+		file_stream_service_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_stream_service_proto_rawDesc), len(file_stream_service_proto_rawDesc)))
 	})
-	return file_internal_proto_stream_service_stream_service_proto_rawDescData
+	return file_stream_service_proto_rawDescData
 }
 
-var file_internal_proto_stream_service_stream_service_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_internal_proto_stream_service_stream_service_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
-var file_internal_proto_stream_service_stream_service_proto_goTypes = []any{
+var file_stream_service_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_stream_service_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_stream_service_proto_goTypes = []any{
 	(StreamStatus)(0),                    // 0: stream_service.StreamStatus
 	(*StartStreamRequest)(nil),           // 1: stream_service.StartStreamRequest
 	(*StartStreamResponse)(nil),          // 2: stream_service.StartStreamResponse
@@ -878,10 +946,11 @@ var file_internal_proto_stream_service_stream_service_proto_goTypes = []any{
 	(*UpdateMetadataResponse)(nil),       // 10: stream_service.UpdateMetadataResponse
 	(*GetLiveStreamsRequest)(nil),        // 11: stream_service.GetLiveStreamsRequest
 	(*GetLiveStreamsResponse)(nil),       // 12: stream_service.GetLiveStreamsResponse
-	(*StreamInfo)(nil),                   // 13: stream_service.StreamInfo
+	(*GetStreamRequest)(nil),             // 13: stream_service.GetStreamRequest
+	(*StreamInfo)(nil),                   // 14: stream_service.StreamInfo
 }
-var file_internal_proto_stream_service_stream_service_proto_depIdxs = []int32{
-	13, // 0: stream_service.GetLiveStreamsResponse.streams:type_name -> stream_service.StreamInfo
+var file_stream_service_proto_depIdxs = []int32{
+	14, // 0: stream_service.GetLiveStreamsResponse.streams:type_name -> stream_service.StreamInfo
 	0,  // 1: stream_service.StreamInfo.status:type_name -> stream_service.StreamStatus
 	1,  // 2: stream_service.StreamManager.StartStream:input_type -> stream_service.StartStreamRequest
 	3,  // 3: stream_service.StreamManager.Heartbeat:input_type -> stream_service.HeartbeatRequest
@@ -889,40 +958,42 @@ var file_internal_proto_stream_service_stream_service_proto_depIdxs = []int32{
 	5,  // 5: stream_service.StreamManager.UpdateSessionMetrics:input_type -> stream_service.UpdateSessionMetricsRequest
 	9,  // 6: stream_service.StreamManager.UpdateStreamMetadata:input_type -> stream_service.UpdateMetadataRequest
 	11, // 7: stream_service.StreamManager.GetLiveStreams:input_type -> stream_service.GetLiveStreamsRequest
-	2,  // 8: stream_service.StreamManager.StartStream:output_type -> stream_service.StartStreamResponse
-	4,  // 9: stream_service.StreamManager.Heartbeat:output_type -> stream_service.HeartbeatResponse
-	8,  // 10: stream_service.StreamManager.StopStream:output_type -> stream_service.StopStreamResponse
-	6,  // 11: stream_service.StreamManager.UpdateSessionMetrics:output_type -> stream_service.UpdateSessionMetricsResponse
-	10, // 12: stream_service.StreamManager.UpdateStreamMetadata:output_type -> stream_service.UpdateMetadataResponse
-	12, // 13: stream_service.StreamManager.GetLiveStreams:output_type -> stream_service.GetLiveStreamsResponse
-	8,  // [8:14] is the sub-list for method output_type
-	2,  // [2:8] is the sub-list for method input_type
+	13, // 8: stream_service.StreamManager.GetStream:input_type -> stream_service.GetStreamRequest
+	2,  // 9: stream_service.StreamManager.StartStream:output_type -> stream_service.StartStreamResponse
+	4,  // 10: stream_service.StreamManager.Heartbeat:output_type -> stream_service.HeartbeatResponse
+	8,  // 11: stream_service.StreamManager.StopStream:output_type -> stream_service.StopStreamResponse
+	6,  // 12: stream_service.StreamManager.UpdateSessionMetrics:output_type -> stream_service.UpdateSessionMetricsResponse
+	10, // 13: stream_service.StreamManager.UpdateStreamMetadata:output_type -> stream_service.UpdateMetadataResponse
+	12, // 14: stream_service.StreamManager.GetLiveStreams:output_type -> stream_service.GetLiveStreamsResponse
+	14, // 15: stream_service.StreamManager.GetStream:output_type -> stream_service.StreamInfo
+	9,  // [9:16] is the sub-list for method output_type
+	2,  // [2:9] is the sub-list for method input_type
 	2,  // [2:2] is the sub-list for extension type_name
 	2,  // [2:2] is the sub-list for extension extendee
 	0,  // [0:2] is the sub-list for field type_name
 }
 
-func init() { file_internal_proto_stream_service_stream_service_proto_init() }
-func file_internal_proto_stream_service_stream_service_proto_init() {
-	if File_internal_proto_stream_service_stream_service_proto != nil {
+func init() { file_stream_service_proto_init() }
+func file_stream_service_proto_init() {
+	if File_stream_service_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_internal_proto_stream_service_stream_service_proto_rawDesc), len(file_internal_proto_stream_service_stream_service_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_stream_service_proto_rawDesc), len(file_stream_service_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   13,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_internal_proto_stream_service_stream_service_proto_goTypes,
-		DependencyIndexes: file_internal_proto_stream_service_stream_service_proto_depIdxs,
-		EnumInfos:         file_internal_proto_stream_service_stream_service_proto_enumTypes,
-		MessageInfos:      file_internal_proto_stream_service_stream_service_proto_msgTypes,
+		GoTypes:           file_stream_service_proto_goTypes,
+		DependencyIndexes: file_stream_service_proto_depIdxs,
+		EnumInfos:         file_stream_service_proto_enumTypes,
+		MessageInfos:      file_stream_service_proto_msgTypes,
 	}.Build()
-	File_internal_proto_stream_service_stream_service_proto = out.File
-	file_internal_proto_stream_service_stream_service_proto_goTypes = nil
-	file_internal_proto_stream_service_stream_service_proto_depIdxs = nil
+	File_stream_service_proto = out.File
+	file_stream_service_proto_goTypes = nil
+	file_stream_service_proto_depIdxs = nil
 }

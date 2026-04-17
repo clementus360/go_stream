@@ -15,6 +15,7 @@ service StreamManager {
     // --- User Actions ---
     rpc UpdateStreamMetadata (UpdateMetadataRequest) returns (UpdateMetadataResponse);
     rpc GetLiveStreams (GetLiveStreamsRequest) returns (GetLiveStreamsResponse);
+    rpc GetStream (GetStreamRequest) returns (StreamInfo);
 }
 
 enum StreamStatus {
@@ -29,6 +30,7 @@ message StartStreamRequest {
     string resolution = 2;
     int32 bitrate = 3;
     string codec = 4;
+    string category = 5;
 }
 
 message StartStreamResponse {
@@ -80,6 +82,11 @@ message GetLiveStreamsResponse {
     repeated StreamInfo streams = 1;
 }
 
+message GetStreamRequest {
+    // Can be a numeric string ("123") or a username ("alice")
+    string identifier = 1; 
+}
+
 message StreamInfo {
     int32 channel_id = 1;
     int64 session_id = 2;
@@ -89,4 +96,5 @@ message StreamInfo {
     int32 viewer_count = 6;
     string resolution = 7;
     StreamStatus status = 8; // Good to include for frontend logic
+    string profile_image_url = 9;
 }

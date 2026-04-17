@@ -180,6 +180,7 @@ type SessionResponse struct {
 	StartTime       *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
 	EndTime         *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
 	LastHeartbeatAt *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=last_heartbeat_at,json=lastHeartbeatAt,proto3" json:"last_heartbeat_at,omitempty"` // NEW
+	Category        string                 `protobuf:"bytes,11,opt,name=category,proto3" json:"category,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -282,6 +283,13 @@ func (x *SessionResponse) GetLastHeartbeatAt() *timestamppb.Timestamp {
 		return x.LastHeartbeatAt
 	}
 	return nil
+}
+
+func (x *SessionResponse) GetCategory() string {
+	if x != nil {
+		return x.Category
+	}
+	return ""
 }
 
 type CreateChannelRequest struct {
@@ -514,6 +522,7 @@ type CreateSessionRequest struct {
 	Resolution    string                 `protobuf:"bytes,2,opt,name=resolution,proto3" json:"resolution,omitempty"`
 	Bitrate       int32                  `protobuf:"varint,3,opt,name=bitrate,proto3" json:"bitrate,omitempty"`
 	Codec         string                 `protobuf:"bytes,4,opt,name=codec,proto3" json:"codec,omitempty"`
+	Category      string                 `protobuf:"bytes,5,opt,name=category,proto3" json:"category,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -572,6 +581,13 @@ func (x *CreateSessionRequest) GetBitrate() int32 {
 func (x *CreateSessionRequest) GetCodec() string {
 	if x != nil {
 		return x.Codec
+	}
+	return ""
+}
+
+func (x *CreateSessionRequest) GetCategory() string {
+	if x != nil {
+		return x.Category
 	}
 	return ""
 }
@@ -1198,7 +1214,7 @@ const file_stream_proto_rawDesc = "" +
 	"\vdescription\x18\x05 \x01(\tR\vdescription\x12\x17\n" +
 	"\ais_live\x18\x06 \x01(\bR\x06isLive\x129\n" +
 	"\n" +
-	"created_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\x97\x03\n" +
+	"created_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xb3\x03\n" +
 	"\x0fSessionResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x1d\n" +
 	"\n" +
@@ -1215,7 +1231,8 @@ const file_stream_proto_rawDesc = "" +
 	"start_time\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x125\n" +
 	"\bend_time\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\x12F\n" +
 	"\x11last_heartbeat_at\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.TimestampR\x0flastHeartbeatAt\"N\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\x0flastHeartbeatAt\x12\x1a\n" +
+	"\bcategory\x18\v \x01(\tR\bcategory\"N\n" +
 	"\x14CreateChannelRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12\x1d\n" +
 	"\n" +
@@ -1239,7 +1256,7 @@ const file_stream_proto_rawDesc = "" +
 	"\f_descriptionB\r\n" +
 	"\v_stream_key\"&\n" +
 	"\x14DeleteChannelRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x05R\x02id\"\x85\x01\n" +
+	"\x02id\x18\x01 \x01(\x05R\x02id\"\xa1\x01\n" +
 	"\x14CreateSessionRequest\x12\x1d\n" +
 	"\n" +
 	"channel_id\x18\x01 \x01(\x05R\tchannelId\x12\x1e\n" +
@@ -1247,7 +1264,8 @@ const file_stream_proto_rawDesc = "" +
 	"resolution\x18\x02 \x01(\tR\n" +
 	"resolution\x12\x18\n" +
 	"\abitrate\x18\x03 \x01(\x05R\abitrate\x12\x14\n" +
-	"\x05codec\x18\x04 \x01(\tR\x05codec\"#\n" +
+	"\x05codec\x18\x04 \x01(\tR\x05codec\x12\x1a\n" +
+	"\bcategory\x18\x05 \x01(\tR\bcategory\"#\n" +
 	"\x11GetSessionRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\"\xb8\x01\n" +
 	"\x14UpdateSessionRequest\x12\x0e\n" +
