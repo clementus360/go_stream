@@ -1,11 +1,17 @@
 package http
 
-import "net/http"
+import (
+	"net/http"
+	"strings"
+)
 
 func CORSMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Allow your frontend origin
-		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000") // For dev; use specific domain for prod
+		origin := strings.TrimSuffix(r.Header.Get("Origin"), "/")
+		switch origin {
+		case "http://localhost:3000", "https://space-stream-kappa.vercel.app":
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+		}
 		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, Authorization")
 
