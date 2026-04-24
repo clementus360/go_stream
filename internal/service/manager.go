@@ -279,30 +279,40 @@ func (s *StreamManager) GetLiveStreams(ctx context.Context, req *pb.GetLiveStrea
 
 func (s *StreamManager) GetStream(ctx context.Context, req *pb.GetStreamRequest) (*pb.StreamInfo, error) {
 	var sessionID int64
+	identifier := strings.TrimSpace(req.Identifier)
 
 	// 1. Resolve Identifier (Is it a number or a username?)
-	if sid, err := strconv.ParseInt(req.Identifier, 10, 64); err == nil {
+	if sid, err := strconv.ParseInt(identifier, 10, 64); err == nil {
 		sessionID = sid
-		log.Printf("[GetStream] Resolved identifier %s as session ID: %d", req.Identifier, sessionID)
+		log.Printf("[GetStream] Resolved identifier %s as session ID: %d", identifier, sessionID)
 	} else {
 		// It's a username, check our mapping key
-		log.Printf("[GetStream] Identifier %s is not numeric, looking up as username", req.Identifier)
-		val, err := s.Redis.Get(ctx, fmt.Sprintf("user_to_sid:%s", req.Identifier)).Result()
+		log.Printf("[GetStream] Identifier %s is not numeric, looking up as username", identifier)
+		val, err := s.Redis.Get(ctx, fmt.Sprintf("user_to_sid:%s", identifier)).Result()
 		if err == redis.Nil {
-			log.Printf("[GetStream] Username %s not found in cache", req.Identifier)
-			return nil, status.Error(codes.NotFound, "Streamer is currently offline")
+			log.Printf("[GetStream] Username %s not found in cache, scanning live cache as fallback", identifier)
+			recoveredSessionID, recoverErr := s.lookupSessionIDByLiveCacheIdentifier(ctx, identifier)
+			if recoverErr != nil {
+				log.Printf("[GetStream] Username %s not found in live cache: %v", identifier, recoverErr)
+				return nil, status.Error(codes.NotFound, "Streamer is currently offline")
+			}
+			sessionID = recoveredSessionID
+			log.Printf("[GetStream] Recovered username %s via live cache session ID: %d", identifier, sessionID)
+			val = ""
 		}
 		if err != nil {
-			log.Printf("[GetStream] Redis error looking up username %s: %v", req.Identifier, err)
+			log.Printf("[GetStream] Redis error looking up username %s: %v", identifier, err)
 			return nil, status.Errorf(codes.Unavailable, "Cache unavailable: %v", err)
 		}
-		var parseErr error
-		sessionID, parseErr = strconv.ParseInt(val, 10, 64)
-		if parseErr != nil || sessionID == 0 {
-			log.Printf("[GetStream] Failed to parse session ID from Redis value %q for username %s: %v", val, req.Identifier, parseErr)
-			return nil, status.Error(codes.Internal, "Invalid session ID in cache")
+		if sessionID == 0 {
+			var parseErr error
+			sessionID, parseErr = strconv.ParseInt(val, 10, 64)
+			if parseErr != nil || sessionID == 0 {
+				log.Printf("[GetStream] Failed to parse session ID from Redis value %q for username %s: %v", val, identifier, parseErr)
+				return nil, status.Error(codes.Internal, "Invalid session ID in cache")
+			}
+			log.Printf("[GetStream] Resolved username %s to session ID: %d", identifier, sessionID)
 		}
-		log.Printf("[GetStream] Resolved username %s to session ID: %d", req.Identifier, sessionID)
 	}
 
 	// 2. Get Channel ID mapping
@@ -375,6 +385,41 @@ func (s *StreamManager) GetStream(ctx context.Context, req *pb.GetStreamRequest)
 		Status:          pb.StreamStatus_LIVE,
 		ProfileImageUrl: c.ProfileImageURL,
 	}, nil
+}
+
+func (s *StreamManager) lookupSessionIDByLiveCacheIdentifier(ctx context.Context, identifier string) (int64, error) {
+	cursor := uint64(0)
+	needle := strings.ToLower(strings.TrimSpace(identifier))
+
+	for {
+		keys, nextCursor, err := s.Redis.Scan(ctx, cursor, "live:*", 100).Result()
+		if err != nil {
+			return 0, err
+		}
+
+		for _, key := range keys {
+			data, err := s.Redis.Get(ctx, key).Bytes()
+			if err != nil {
+				continue
+			}
+
+			var c LiveCache
+			if err := json.Unmarshal(data, &c); err != nil {
+				continue
+			}
+
+			if strings.EqualFold(c.Username, identifier) || strings.EqualFold(c.Title, identifier) || strings.ToLower(c.Username) == needle || strings.ToLower(c.Title) == needle {
+				return int64(c.SessionID), nil
+			}
+		}
+
+		cursor = nextCursor
+		if cursor == 0 {
+			break
+		}
+	}
+
+	return 0, redis.Nil
 }
 
 func (s *StreamManager) Heartbeat(ctx context.Context, req *pb.HeartbeatRequest) (*pb.HeartbeatResponse, error) {
